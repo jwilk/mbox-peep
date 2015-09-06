@@ -1,0 +1,81 @@
+#!/usr/bin/python -S
+# encoding=UTF-8
+
+# Copyright © 2005-2015 Jakub Wilk <jwilk@jwilk.net>
+
+import errno
+import glob
+import os
+import pwd
+import re
+import time
+
+home_dir = os.path.expanduser('~/mail/')
+os.chdir(home_dir)
+del home_dir
+
+mailboxes = ['INBOX'] + glob.glob('[a-wy-z]*')
+mailboxes = [x for x in sorted(mailboxes) if not x.endswith('.lock')]
+max_length = max(len(x) for x in mailboxes)
+
+def dot_lock(file_name, wait=5):
+    for i in xrange(wait):
+        if i > 0:
+            time.sleep(1)
+        try:
+            os.open('%s.lock' % file_name, os.O_CREAT | os.O_EXCL, 0)
+        except OSError, e:
+            if e.errno == errno.EEXIST:
+                continue
+            elif e.errno == errno.EROFS:
+                break
+            else:
+                raise
+        return True
+    return False
+
+def dot_unlock(file_name):
+    os.remove('%s.lock' % file_name)
+
+re_status = re.compile('Status: [A-Z]*?[RO][A-Z]*?[RO]').match
+re_xstatus = re.compile('X-Status: [A-Z]*?F').match
+
+from_re = re.compile('^From (?![0-9a-f]{40} Mon Sep 17 00:00:00 2001$)')
+login = pwd.getpwuid(os.getuid()).pw_name
+from_ = 'From {login} '.format(login=login)
+from_ = 'From '
+
+for mailbox in mailboxes:
+    have_lock = 0
+    try:
+        have_lock = dot_lock(mailbox);
+        with open(mailbox) as file:
+            header = 1
+            count = count_f = 0
+            for line in file:
+                if from_re.match(line):
+                    count += 1
+                    if count > 99:
+                        break
+                    header = 1
+                if line == '\n':
+                    header = 0
+                    continue
+                if re_status(line):
+                    count -= 1
+                if re_xstatus(line):
+                    count_f += 1
+    finally:
+        if have_lock:
+            dot_unlock(mailbox)
+    color = '0'
+    if count > 0:
+        color ='1;33'
+    if count_f > 0:
+        color = '1;31'
+    count = str(count) if count < 99 else '>99'
+    status = ('\x1b[%(color)sm%(mailbox)-' + str(max_length) + 's   %(count)3s\x1b[0m') % locals()
+    status = status.replace(' ', '.')
+    print status
+
+# vim:ts=4 sw=4 et
