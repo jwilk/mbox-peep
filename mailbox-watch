@@ -1,7 +1,7 @@
 #!/usr/bin/python -S
 # encoding=UTF-8
 
-# Copyright © 2005-2015 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2005-2016 Jakub Wilk <jwilk@jwilk.net>
 
 import errno
 import glob
