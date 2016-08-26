@@ -40,7 +40,7 @@ def dot_unlock(file_name):
 re_status = re.compile('Status: [A-Z]*?[RO][A-Z]*?[RO]').match
 re_xstatus = re.compile('X-Status: [A-Z]*?F').match
 
-from_re = re.compile('^From (?![0-9a-f]{40} Mon Sep 17 00:00:00 2001$)')
+from_re = re.compile('^From (?![0-9a-f]{40} Mon Sep 17 00:00:00 2001$).* [0-9]{4}$')
 login = pwd.getpwuid(os.getuid()).pw_name
 from_ = 'From {login} '.format(login=login)
 from_ = 'From '
