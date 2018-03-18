@@ -76,7 +76,7 @@ for mbox in mboxes:
             dot_unlock(mbox)
     color = '0'
     if count > 0:
-        color ='1;33'
+        color = '1;33'
     if count_f > 0:
         color = '1;31'
     if count > 99:
