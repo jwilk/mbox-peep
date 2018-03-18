@@ -25,11 +25,12 @@ mailboxes = [x for x in sorted(mailboxes) if not x.endswith('.lock')]
 max_length = max(len(x) for x in mailboxes)
 
 def dot_lock(path, wait=5):
+    lpath = '{path}.lock'.format(path=path)
     for i in range(wait):
         if i > 0:
             time.sleep(1)
         try:
-            os.open('%s.lock' % path, os.O_CREAT | os.O_EXCL, 0)
+            os.open(lpath, os.O_CREAT | os.O_EXCL, 0)
         except OSError as e:
             if e.errno == errno.EEXIST:
                 continue
@@ -41,13 +42,15 @@ def dot_lock(path, wait=5):
     return False
 
 def dot_unlock(path):
-    os.remove('%s.lock' % path)
+    lpath = '{path}.lock'.format(path=path)
+    os.remove(lpath)
 
 re_status = re.compile('Status: [A-Z]*?[RO][A-Z]*?[RO]').match
 re_xstatus = re.compile('X-Status: [A-Z]*?F').match
 
 from_re = re.compile('^From (?![0-9a-f]{40} Mon Sep 17 00:00:00 2001$).* [0-9]{4}$')
 
+template = '\x1b[{color}m{mbox:<{maxlen}}   {n:3}\x1b[0m'
 for mailbox in mailboxes:
     have_lock = 0
     try:
@@ -76,8 +79,9 @@ for mailbox in mailboxes:
         color ='1;33'
     if count_f > 0:
         color = '1;31'
-    count = str(count) if count < 99 else '>99'
-    status = ('\x1b[%(color)sm%(mailbox)-' + str(max_length) + 's   %(count)3s\x1b[0m') % locals()
+    if count > 99:
+        count = '>99'
+    status = template.format(color=color, mbox=mailbox, maxlen=max_length, n=count)
     status = status.replace(' ', '.')
     print(status)
 
