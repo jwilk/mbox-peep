@@ -3,17 +3,23 @@
 
 # Copyright © 2005-2018 Jakub Wilk <jwilk@jwilk.net>
 
+import argparse
 import errno
 import glob
 import os
 import re
 import time
 
-home_dir = os.path.expanduser('~/mail/')
-os.chdir(home_dir)
-del home_dir
+ap = argparse.ArgumentParser()
+ap.add_argument('-C', '--cwd', default='.')
+ap.add_argument('globs', metavar='GLOB', nargs='+')
+options = ap.parse_args()
 
-mailboxes = ['INBOX'] + glob.glob('[a-wy-z]*')
+os.chdir(options.cwd)
+
+mailboxes = []
+for g in options.globs:
+    mailboxes += glob.iglob(g)
 mailboxes = [x for x in sorted(mailboxes) if not x.endswith('.lock')]
 max_length = max(len(x) for x in mailboxes)
 
