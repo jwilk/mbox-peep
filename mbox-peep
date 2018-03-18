@@ -18,11 +18,11 @@ options = ap.parse_args()
 
 os.chdir(options.cwd)
 
-mailboxes = []
+mboxes = []
 for g in options.globs:
-    mailboxes += glob.iglob(g)
-mailboxes = [x for x in sorted(mailboxes) if not x.endswith('.lock')]
-max_length = max(len(x) for x in mailboxes)
+    mboxes += glob.iglob(g)
+mboxes = [x for x in sorted(mboxes) if not x.endswith('.lock')]
+max_length = max(len(x) for x in mboxes)
 
 def dot_lock(path, wait=5):
     lpath = '{path}.lock'.format(path=path)
@@ -51,11 +51,11 @@ re_xstatus = re.compile('X-Status: [A-Z]*?F').match
 from_re = re.compile('^From (?![0-9a-f]{40} Mon Sep 17 00:00:00 2001$).* [0-9]{4}$')
 
 template = '\x1b[{color}m{mbox:<{maxlen}}   {n:3}\x1b[0m'
-for mailbox in mailboxes:
+for mbox in mboxes:
     have_lock = 0
     try:
-        have_lock = dot_lock(mailbox);
-        with open(mailbox) as file:
+        have_lock = dot_lock(mbox);
+        with open(mbox) as file:
             header = 1
             count = count_f = 0
             for line in file:
@@ -73,7 +73,7 @@ for mailbox in mailboxes:
                     count_f += 1
     finally:
         if have_lock:
-            dot_unlock(mailbox)
+            dot_unlock(mbox)
     color = '0'
     if count > 0:
         color ='1;33'
@@ -81,7 +81,7 @@ for mailbox in mailboxes:
         color = '1;31'
     if count > 99:
         count = '>99'
-    status = template.format(color=color, mbox=mailbox, maxlen=max_length, n=count)
+    status = template.format(color=color, mbox=mbox, maxlen=max_length, n=count)
     status = status.replace(' ', '.')
     print(status)
 
