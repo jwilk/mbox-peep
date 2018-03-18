@@ -30,7 +30,7 @@ def dot_lock(file_name, wait=5):
             time.sleep(1)
         try:
             os.open('%s.lock' % file_name, os.O_CREAT | os.O_EXCL, 0)
-        except OSError, e:
+        except OSError as e:
             if e.errno == errno.EEXIST:
                 continue
             elif e.errno == errno.EROFS:
