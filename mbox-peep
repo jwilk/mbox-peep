@@ -25,7 +25,7 @@ mailboxes = [x for x in sorted(mailboxes) if not x.endswith('.lock')]
 max_length = max(len(x) for x in mailboxes)
 
 def dot_lock(file_name, wait=5):
-    for i in xrange(wait):
+    for i in range(wait):
         if i > 0:
             time.sleep(1)
         try:
