@@ -24,12 +24,12 @@ for g in options.globs:
 mailboxes = [x for x in sorted(mailboxes) if not x.endswith('.lock')]
 max_length = max(len(x) for x in mailboxes)
 
-def dot_lock(file_name, wait=5):
+def dot_lock(path, wait=5):
     for i in range(wait):
         if i > 0:
             time.sleep(1)
         try:
-            os.open('%s.lock' % file_name, os.O_CREAT | os.O_EXCL, 0)
+            os.open('%s.lock' % path, os.O_CREAT | os.O_EXCL, 0)
         except OSError as e:
             if e.errno == errno.EEXIST:
                 continue
@@ -40,8 +40,8 @@ def dot_lock(file_name, wait=5):
         return True
     return False
 
-def dot_unlock(file_name):
-    os.remove('%s.lock' % file_name)
+def dot_unlock(path):
+    os.remove('%s.lock' % path)
 
 re_status = re.compile('Status: [A-Z]*?[RO][A-Z]*?[RO]').match
 re_xstatus = re.compile('X-Status: [A-Z]*?F').match
