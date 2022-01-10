@@ -54,7 +54,7 @@ template = '\x1B[{color}m{mbox:<{maxlen}}   {n:3}\x1B[0m'
 for mbox in mboxes:
     have_lock = 0
     try:
-        have_lock = dot_lock(mbox);
+        have_lock = dot_lock(mbox)
         with open(mbox) as file:
             header = 1
             count = count_f = 0
