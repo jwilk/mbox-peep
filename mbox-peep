@@ -50,7 +50,7 @@ re_xstatus = re.compile('X-Status: [A-Z]*?F').match
 
 from_re = re.compile('^From (?![0-9a-f]{40} Mon Sep 17 00:00:00 2001$).* [0-9]{4}$')
 
-template = '\x1B[{color}m{mbox:<{maxlen}}   {n:3}\x1B[0m'
+template = '\33[{color}m{mbox:<{maxlen}}   {n:3}\33[0m'
 for mbox in mboxes:
     have_lock = 0
     try:
